@@ -197,9 +197,92 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         title: const Text('My Shopping Lists'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _handleLogout,
-            tooltip: 'Logout',
+            icon: const Icon(Icons.bar_chart),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Analytics feature coming soon!')),
+              );
+            },
+            tooltip: 'Analytics',
+          ),
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Profile feature coming soon!')),
+              );
+            },
+            tooltip: 'Profile',
+          ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'More options',
+            onSelected: (value) {
+              switch (value) {
+                case 'sort_name':
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sort by name coming soon!')),
+                  );
+                  break;
+                case 'sort_date':
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Sort by date coming soon!')),
+                  );
+                  break;
+                case 'dark_mode':
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Dark mode toggle coming soon!')),
+                  );
+                  break;
+                case 'logout':
+                  _handleLogout();
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'sort_name',
+                child: Row(
+                  children: [
+                    Icon(Icons.sort_by_alpha),
+                    SizedBox(width: 12),
+                    Text('Sort by Name'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'sort_date',
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today),
+                    SizedBox(width: 12),
+                    Text('Sort by Date'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'dark_mode',
+                child: Row(
+                  children: [
+                    Icon(Icons.dark_mode),
+                    SizedBox(width: 12),
+                    Text('Dark Mode'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: Colors.red),
+                    SizedBox(width: 12),
+                    Text('Logout', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
