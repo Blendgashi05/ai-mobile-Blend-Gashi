@@ -17,7 +17,7 @@ A modern, premium Flutter web application for managing shopping lists with Supab
 - **UI**: Material 3 with custom dark theme
 - **Design**: Glassmorphism with Midnight Emerald palette
 - **Fonts**: Google Fonts (Poppins + Inter)
-- **Dependencies**: supabase_flutter, provider, http, intl, google_fonts, image_picker, fl_chart
+- **Dependencies**: supabase_flutter, provider, http, intl, google_fonts, file_picker, fl_chart
 
 ## Project Architecture
 
@@ -149,16 +149,23 @@ flutter build web --release --dart-define=SUPABASE_URL=$SUPABASE_URL --dart-defi
   - Quick action buttons: New List, View Analytics
   - Modern card layout with proper spacing
 - Profile screen with photo upload:
-  - Added image_picker package (^1.0.4) for web support
+  - Added file_picker package (^8.3.7) for web support
   - Implemented profile photo upload to Supabase storage
-  - Web-compatible upload using bytes instead of File API
+  - Web-compatible upload using bytes and uploadBinary
   - Circular avatar with gradient border
   - Upload button with camera icon
   - Profile info display (email, member since date)
-- Analytics screen placeholder:
-  - Glassmorphic coming soon card
-  - Ready for future chart implementation
-  - Note: Complex chart features deferred due to syntax complexity
+- Analytics screen with real-time data:
+  - Summary stats: Total Items, Completed, Pending
+  - Most Common Items section showing top 10 frequently added items
+  - Lists Overview with completion progress bars for each list
+  - Parallel data loading using Future.wait for optimal performance
+  - Pull-to-refresh functionality
+  - Glassmorphic design matching app theme
+- Performance optimizations:
+  - Dashboard and Analytics screens use parallel item fetching
+  - Prevents UI hangs when loading many lists
+  - Per-list error isolation ensures individual failures don't block other lists
 
 ## User Preferences
 - Clean, production-ready code with comments
