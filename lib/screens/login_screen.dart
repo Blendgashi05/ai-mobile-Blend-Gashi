@@ -232,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   TextFormField(
                                     controller: _emailController,
                                     keyboardType: TextInputType.emailAddress,
-                                    style: const TextStyle(color: Colors.white),
+                                    style: const TextStyle(color: Color(0xFF1B5E20)),
                                     decoration: InputDecoration(
                                       labelText: 'Email',
                                       hintText: 'Enter your email',
@@ -247,7 +247,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   TextFormField(
                                     controller: _passwordController,
                                     obscureText: true,
-                                    style: const TextStyle(color: Colors.white),
+                                    style: const TextStyle(color: Color(0xFF1B5E20)),
                                     decoration: InputDecoration(
                                       labelText: 'Password',
                                       hintText: 'Enter your password',
