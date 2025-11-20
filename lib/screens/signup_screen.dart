@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../services/supabase_service.dart';
-import '../widgets/app_footer.dart';
 import 'shopping_lists_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -466,10 +465,6 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 40),
-                            
-                            // Footer
-                            const AppFooter(),
                           ],
                         ),
                       ),

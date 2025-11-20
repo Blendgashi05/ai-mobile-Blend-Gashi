@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/shopping_list.dart';
 import '../services/supabase_service.dart';
-import '../widgets/app_footer.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import 'shopping_list_detail_screen.dart';
@@ -204,129 +203,122 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _errorMessage != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-                            const SizedBox(height: 16),
-                            Text(_errorMessage!),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: _loadShoppingLists,
-                              child: const Text('Retry'),
-                            ),
-                          ],
-                        ),
-                      )
-                    : _shoppingLists.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.shopping_cart_outlined,
-                                  size: 80,
-                                  color: Colors.grey[300],
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                      const SizedBox(height: 16),
+                      Text(_errorMessage!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadShoppingLists,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
+              : _shoppingLists.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.shopping_cart_outlined,
+                            size: 80,
+                            color: Colors.grey[300],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No shopping lists yet',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Tap the + button to create your first list',
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _loadShoppingLists,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _shoppingLists.length,
+                        itemBuilder: (context, index) {
+                          final list = _shoppingLists[index];
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              leading: CircleAvatar(
+                                backgroundColor: Theme.of(context).primaryColor,
+                                child: const Icon(
+                                  Icons.list_alt,
+                                  color: Colors.white,
                                 ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'No shopping lists yet',
-                                  style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              title: Text(
+                                list.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Tap the + button to create your first list',
-                                  style: TextStyle(color: Colors.grey[600]),
-                                ),
-                              ],
-                            ),
-                          )
-                        : RefreshIndicator(
-                            onRefresh: _loadShoppingLists,
-                            child: ListView.builder(
-                              padding: const EdgeInsets.all(16),
-                              itemCount: _shoppingLists.length,
-                              itemBuilder: (context, index) {
-                                final list = _shoppingLists[index];
-                                return Card(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  child: ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
-                                    ),
-                                    leading: CircleAvatar(
-                                      backgroundColor: Theme.of(context).primaryColor,
-                                      child: const Icon(
-                                        Icons.list_alt,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    title: Text(
-                                      list.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    subtitle: list.description != null
-                                        ? Text(list.description!)
-                                        : null,
-                                    trailing: PopupMenuButton(
-                                      itemBuilder: (context) => [
-                                        const PopupMenuItem(
-                                          value: 'edit',
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.edit, size: 20),
-                                              SizedBox(width: 8),
-                                              Text('Edit'),
-                                            ],
-                                          ),
-                                        ),
-                                        const PopupMenuItem(
-                                          value: 'delete',
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.delete, size: 20, color: Colors.red),
-                                              SizedBox(width: 8),
-                                              Text('Delete', style: TextStyle(color: Colors.red)),
-                                            ],
-                                          ),
-                                        ),
+                              ),
+                              subtitle: list.description != null
+                                  ? Text(list.description!)
+                                  : null,
+                              trailing: PopupMenuButton(
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: 'edit',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit, size: 20),
+                                        SizedBox(width: 8),
+                                        Text('Edit'),
                                       ],
-                                      onSelected: (value) {
-                                        if (value == 'edit') {
-                                          _showListDialog(list: list);
-                                        } else if (value == 'delete') {
-                                          _deleteList(list);
-                                        }
-                                      },
                                     ),
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => ShoppingListDetailScreen(
-                                            shoppingList: list,
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.delete, size: 20, color: Colors.red),
+                                        SizedBox(width: 8),
+                                        Text('Delete', style: TextStyle(color: Colors.red)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                onSelected: (value) {
+                                  if (value == 'edit') {
+                                    _showListDialog(list: list);
+                                  } else if (value == 'delete') {
+                                    _deleteList(list);
+                                  }
+                                },
+                              ),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => ShoppingListDetailScreen(
+                                      shoppingList: list,
+                                    ),
                                   ),
                                 );
                               },
                             ),
-                          ),
-          ),
-          const AppFooter(),
-        ],
-      ),
+                          );
+                        },
+                      ),
+                    ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showListDialog(),
         child: const Icon(Icons.add),

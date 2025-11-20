@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../services/supabase_service.dart';
-import '../widgets/app_footer.dart';
 import 'signup_screen.dart';
 import 'shopping_lists_screen.dart';
 
@@ -413,10 +412,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           ),
                         ),
                       ),
-                      const SizedBox(height: 40),
-                      
-                      // Footer
-                      const AppFooter(),
                     ],
                   ),
                 ),
