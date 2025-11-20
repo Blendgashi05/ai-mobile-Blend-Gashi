@@ -292,18 +292,19 @@ class SupabaseService {
     }
   }
 
-  /// Upload profile photo to storage
-  Future<String> uploadProfilePhoto(File file) async {
+  /// Upload profile photo to storage (supports web with bytes)
+  Future<String> uploadProfilePhoto(dynamic fileData, String fileName) async {
     try {
       final user = getCurrentUser();
       if (user == null) throw Exception('User not authenticated');
 
-      final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final path = '${user.id}/$fileName';
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final uniqueFileName = 'profile_$timestamp${fileName.substring(fileName.lastIndexOf('.'))}';
+      final path = '${user.id}/$uniqueFileName';
 
-      await _client.storage.from('profile-photos').upload(
+      await _client.storage.from('profile-photos').uploadBinary(
             path,
-            file,
+            fileData,
             fileOptions: const FileOptions(upsert: true),
           );
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:image_picker/image_picker.dart';
 import '../services/supabase_service.dart';
 import '../models/user_profile.dart';
 import '../widgets/custom_button.dart';
@@ -71,6 +73,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error updating name: $e')),
+        );
+      }
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _uploadPhoto() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
+      );
+      
+      if (image == null) return;
+      
+      setState(() => _isLoading = true);
+      
+      // Get image bytes (works for both web and mobile)
+      final bytes = await image.readAsBytes();
+      
+      // Upload to Supabase storage
+      final photoUrl = await _supabaseService.uploadProfilePhoto(bytes, image.name);
+      
+      // Update profile with new photo URL
+      await _supabaseService.updateUserProfile(photoUrl: photoUrl);
+      
+      // Reload profile
+      await _loadProfile();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile photo updated successfully!'),
+            backgroundColor: Color(0xFF27E8A7),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error uploading photo: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -154,8 +204,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Positioned(
                               bottom: 0,
                               right: 0,
-                              child: Tooltip(
-                                message: 'Photo upload coming soon!',
+                              child: InkWell(
+                                onTap: _uploadPhoto,
+                                borderRadius: BorderRadius.circular(50),
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
@@ -167,6 +218,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       color: const Color(0xFF0B0F2A),
                                       width: 3,
                                     ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF27E8A7).withOpacity(0.4),
+                                        blurRadius: 12,
+                                      ),
+                                    ],
                                   ),
                                   child: const Icon(
                                     Icons.camera_alt,
