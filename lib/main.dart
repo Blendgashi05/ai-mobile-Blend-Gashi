@@ -191,17 +191,19 @@ class MyApp extends StatelessWidget {
       // Input decoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFFE8F5E9).withOpacity(0.95),
+        fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: primaryText.withOpacity(0.2),
+          borderSide: const BorderSide(
+            color: Color(0xFF2E7D32),
+            width: 1.5,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: primaryText.withOpacity(0.2),
+          borderSide: const BorderSide(
+            color: Color(0xFF66BB6A),
+            width: 1.5,
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -213,9 +215,11 @@ class MyApp extends StatelessWidget {
         ),
         labelStyle: GoogleFonts.inter(
           color: const Color(0xFF2E7D32),
+          fontSize: 14,
         ),
         hintStyle: GoogleFonts.inter(
           color: const Color(0xFF66BB6A),
+          fontSize: 14,
         ),
         prefixIconColor: const Color(0xFF2E7D32),
       ),

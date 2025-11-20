@@ -272,7 +272,11 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                                         TextFormField(
                                           controller: _emailController,
                                           keyboardType: TextInputType.emailAddress,
-                                          style: const TextStyle(color: Color(0xFF1B5E20)),
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                           decoration: InputDecoration(
                                             labelText: 'Email',
                                             hintText: 'Enter your email',
@@ -287,7 +291,11 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                                         TextFormField(
                                           controller: _passwordController,
                                           obscureText: true,
-                                          style: const TextStyle(color: Color(0xFF1B5E20)),
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                           decoration: InputDecoration(
                                             labelText: 'Password',
                                             hintText: 'Minimum 6 characters',
@@ -302,7 +310,11 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                                         TextFormField(
                                           controller: _confirmPasswordController,
                                           obscureText: true,
-                                          style: const TextStyle(color: Color(0xFF1B5E20)),
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                           decoration: InputDecoration(
                                             labelText: 'Confirm Password',
                                             hintText: 'Re-enter your password',
