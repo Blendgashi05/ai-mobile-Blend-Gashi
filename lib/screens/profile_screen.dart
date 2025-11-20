@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import '../services/supabase_service.dart';
 import '../models/user_profile.dart';
 import '../widgets/custom_button.dart';
@@ -82,23 +82,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _uploadPhoto() async {
     try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 85,
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+        withData: true,
       );
       
-      if (image == null) return;
+      if (result == null || result.files.isEmpty) return;
+      
+      final file = result.files.first;
+      if (file.bytes == null) {
+        throw Exception('Could not read file data');
+      }
       
       setState(() => _isLoading = true);
       
-      // Get image bytes (works for both web and mobile)
-      final bytes = await image.readAsBytes();
-      
       // Upload to Supabase storage
-      final photoUrl = await _supabaseService.uploadProfilePhoto(bytes, image.name);
+      final photoUrl = await _supabaseService.uploadProfilePhoto(
+        file.bytes!,
+        file.name,
+      );
       
       // Update profile with new photo URL
       await _supabaseService.updateUserProfile(photoUrl: photoUrl);
