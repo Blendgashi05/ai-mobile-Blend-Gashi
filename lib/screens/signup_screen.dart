@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import '../services/supabase_service.dart';
-import 'shopping_lists_screen.dart';
+import 'home_hub_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -96,7 +96,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
 
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const ShoppingListsScreen()),
+          MaterialPageRoute(builder: (_) => const HomeHubScreen()),
         );
       }
     } catch (e) {

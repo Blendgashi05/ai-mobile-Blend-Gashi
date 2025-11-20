@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/login_screen.dart';
-import 'screens/shopping_lists_screen.dart';
+import 'screens/home_hub_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
       
       // Check if user is already logged in
       home: Supabase.instance.client.auth.currentUser != null
-          ? const ShoppingListsScreen()
+          ? const HomeHubScreen()
           : const LoginScreen(),
     );
   }
