@@ -1,1 +1,16 @@
+So im using replit, supabase the URL and anon key are in the .env file, and GitHub, the plan is to create a mobile app for grocery shopping list, it needs to have CRUD, auth , good structure and documentation and sleek design, what i need from you is to generate me a good prompt for replit keep it short and understandable 
+Email/password Auth (login, signup, logout).
 
+CRUD for shopping lists + items (add, edit, delete, mark as bought).
+
+Clean folder structure: lib/screens, lib/services, lib/widgets, lib/models.
+
+Supabase service for all DB operations.
+
+Sleek, modern UI with consistent theming and reusable components.
+
+Error handling, loading states, and input validation.
+
+Include clear documentation in README: setup steps, environment variables, running instructions.
+
+Code should be production-ready, clean, and commented.
