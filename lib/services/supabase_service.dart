@@ -6,6 +6,7 @@ import '../models/user_profile.dart';
 import '../models/user_preferences.dart';
 import '../models/purchase_history.dart';
 import 'dart:io';
+import 'dart:typed_data';
 
 /// Service for all Supabase database operations
 class SupabaseService {
@@ -292,19 +293,25 @@ class SupabaseService {
     }
   }
 
-  /// Upload profile photo to storage (supports web with bytes)
-  Future<String> uploadProfilePhoto(dynamic fileData, String fileName) async {
+  /// Upload profile photo to storage (supports web and mobile with bytes)
+  Future<String> uploadProfilePhoto(Uint8List fileBytes, String fileName) async {
     try {
       final user = getCurrentUser();
       if (user == null) throw Exception('User not authenticated');
 
+      // Ensure we have a file extension
+      final extension = fileName.contains('.') 
+          ? fileName.substring(fileName.lastIndexOf('.'))
+          : '.jpg';
+      
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final uniqueFileName = 'profile_$timestamp${fileName.substring(fileName.lastIndexOf('.'))}';
+      final uniqueFileName = 'profile_$timestamp$extension';
       final path = '${user.id}/$uniqueFileName';
 
+      // Upload binary data (works on all platforms)
       await _client.storage.from('profile-photos').uploadBinary(
             path,
-            fileData,
+            fileBytes,
             fileOptions: const FileOptions(upsert: true),
           );
 

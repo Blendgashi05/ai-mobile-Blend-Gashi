@@ -18,13 +18,23 @@ class ShoppingList {
 
   /// Create a ShoppingList from JSON
   factory ShoppingList.fromJson(Map<String, dynamic> json) {
+    // Safely parse dates with fallback to current time
+    DateTime parseDateTime(dynamic value) {
+      if (value == null) return DateTime.now();
+      try {
+        return DateTime.parse(value as String);
+      } catch (e) {
+        return DateTime.now();
+      }
+    }
+    
     return ShoppingList(
       id: json['id'] as String,
       userId: json['user_id'] as String,
       name: json['name'] as String,
       description: json['description'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: parseDateTime(json['created_at']),
+      updatedAt: parseDateTime(json['updated_at']),
     );
   }
 

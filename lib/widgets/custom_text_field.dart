@@ -44,22 +44,50 @@ class CustomTextField extends StatelessWidget {
       ),
       decoration: InputDecoration(
         labelText: label,
-        hintText: hintText,
-        prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+        labelStyle: TextStyle(
+          color: Colors.grey[700],
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
         ),
-        enabledBorder: OutlineInputBorder(
+        floatingLabelStyle: TextStyle(
+          color: Theme.of(context).primaryColor,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+        hintText: hintText,
+        hintStyle: TextStyle(
+          color: Colors.grey[400],
+          fontSize: 14,
+        ),
+        prefixIcon: prefixIcon != null
+            ? Icon(
+                prefixIcon,
+                color: Colors.grey[600],
+                size: 22,
+              )
+            : null,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey[300]!),
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!, width: 1.5),
+        ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+          borderSide: BorderSide(
+            color: Theme.of(context).primaryColor,
+            width: 2,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
