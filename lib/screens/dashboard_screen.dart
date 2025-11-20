@@ -30,15 +30,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       final lists = await _supabaseService.fetchShoppingLists();
       
-      final Map<String, List<ShoppingItem>> itemsMap = {};
-      for (var list in lists) {
+      // Fetch all items in parallel for better performance
+      final itemFutures = lists.map((list) async {
         try {
           final items = await _supabaseService.fetchShoppingItems(list.id);
-          itemsMap[list.id] = items;
+          return MapEntry(list.id, items);
         } catch (e) {
-          itemsMap[list.id] = [];
+          return MapEntry(list.id, <ShoppingItem>[]);
         }
-      }
+      });
+      
+      final itemEntries = await Future.wait(itemFutures);
+      final Map<String, List<ShoppingItem>> itemsMap = Map.fromEntries(itemEntries);
       
       setState(() {
         _shoppingLists = lists;
