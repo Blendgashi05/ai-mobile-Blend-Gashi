@@ -1,675 +1,83 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import '../services/supabase_service.dart';
-import '../models/category.dart';
 
-class AnalyticsScreen extends StatefulWidget {
+class AnalyticsScreen extends StatelessWidget {
   const AnalyticsScreen({super.key});
 
   @override
-  State<AnalyticsScreen> createState() => _AnalyticsScreenState();
-}
-
-class _AnalyticsScreenState extends State<AnalyticsScreen> {
-  final _supabaseService = SupabaseService();
-  bool _isLoading = true;
-  List<Map<String, dynamic>> _mostBoughtItems = [];
-  Map<String, double> _categorySpending = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAnalytics();
-  }
-
-  Future<void> _loadAnalytics() async {
-    setState(() => _isLoading = true);
-    
-    try {
-      final mostBought = await _supabaseService.getMostBoughtItems(limit: 10);
-      final spending = await _supabaseService.getCategorySpending();
-      
-      setState(() {
-        _mostBoughtItems = mostBought;
-        _categorySpending = spending;
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading analytics: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final totalSpent = _categorySpending.values.fold(0.0, (sum, value) => sum + value);
-    final totalPurchases = _mostBoughtItems.fold(0, (sum, item) => sum + (item['bought_count'] as int? ?? 0));
-    final avgSpent = _categorySpending.isNotEmpty ? totalSpent / _categorySpending.length : 0.0;
-    
     return Scaffold(
-      backgroundColor: const Color(0xFF0B0F2A),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF27E8A7)))
-          : RefreshIndicator(
-              onRefresh: _loadAnalytics,
-              color: const Color(0xFF27E8A7),
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF8B5CF6), Color(0xFF27E8A7)],
-                            ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF8B5CF6).withOpacity(0.3),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.analytics_rounded,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Analytics',
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              'Track your shopping insights',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color(0xFF8B5CF6),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    
-                    if (_categorySpending.isNotEmpty || _mostBoughtItems.isNotEmpty) ...[
-                      // Summary Stats Row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildMiniStatCard(
-                              'Total Spent',
-                              '\$${totalSpent.toStringAsFixed(2)}',
-                              Icons.attach_money_rounded,
-                              const Color(0xFF27E8A7),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildMiniStatCard(
-                              'Purchases',
-                              '$totalPurchases',
-                              Icons.shopping_bag_rounded,
-                              const Color(0xFF8B5CF6),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildMiniStatCard(
-                              'Categories',
-                              '${_categorySpending.length}',
-                              Icons.category_rounded,
-                              const Color(0xFF22D3EE),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildMiniStatCard(
-                              'Avg/Category',
-                              '\$${avgSpent.toStringAsFixed(2)}',
-                              Icons.trending_up_rounded,
-                              const Color(0xFFEC4899),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      
-                      // Category Spending Pie Chart
-                      _buildGlassCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFF27E8A7), Color(0xFF8B5CF6)],
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Icon(Icons.pie_chart_rounded, color: Colors.white, size: 20),
-                                ),
-                                const SizedBox(width: 12),
-                                const Text(
-                                  'Spending by Category',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 24),
-                            Center(
-                              child: SizedBox(
-                                height: 220,
-                                width: double.infinity,
-                                child: PieChart(
-                                  PieChartData(
-                                    sections: _categorySpending.entries.map((entry) {
-                                      final category = Category.fromValue(entry.key);
-                                      final percentage = (entry.value / totalSpent * 100).toStringAsFixed(0);
-                                      return PieChartSectionData(
-                                        value: entry.value,
-                                        title: '$percentage%',
-                                        radius: 90,
-                                        titleStyle: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black54,
-                                              blurRadius: 4,
-                                            ),
-                                          ],
-                                        ),
-                                        color: _getCategoryColor(entry.key),
-                                        badgeWidget: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withOpacity(0.2),
-                                                blurRadius: 4,
-                                              ),
-                                            ],
-                                          ),
-                                          child: Text(
-                                            category.emoji,
-                                            style: const TextStyle(fontSize: 16),
-                                          ),
-                                        ),
-                                        badgePositionPercentageOffset: 1.3,
-                                      );
-                                    }).toList(),
-                                    sectionsSpace: 3,
-                                    centerSpaceRadius: 0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 24),
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.05),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: const Color(0xFF27E8A7).withOpacity(0.2),
-                                ),
-                              ),
-                              child: Column(
-                                children: _categorySpending.entries.map((entry) {
-                                  final category = Category.fromValue(entry.key);
-                                  final percentage = (entry.value / totalSpent * 100).toStringAsFixed(1);
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 12,
-                                          height: 12,
-                                          decoration: BoxDecoration(
-                                            color: _getCategoryColor(entry.key),
-                                            borderRadius: BorderRadius.circular(3),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: _getCategoryColor(entry.key).withOpacity(0.4),
-                                                blurRadius: 4,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Text(
-                                          category.emoji,
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            category.label,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF27E8A7).withOpacity(0.2),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Text(
-                                            '$percentage%',
-                                            style: const TextStyle(
-                                              color: Color(0xFF27E8A7),
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          '\$${entry.value.toStringAsFixed(2)}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      // Most Bought Items
-                      _buildGlassCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)],
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Icon(Icons.emoji_events_rounded, color: Colors.white, size: 20),
-                                ),
-                                const SizedBox(width: 12),
-                                const Text(
-                                  'Top Purchased Items',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            ..._mostBoughtItems.asMap().entries.map((entry) {
-                              final index = entry.key;
-                              final item = entry.value;
-                              final category = Category.fromValue(item['category'] ?? 'other');
-                              final isTopThree = index < 3;
-                              
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  gradient: isTopThree
-                                      ? LinearGradient(
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                          colors: [
-                                            const Color(0xFF27E8A7).withOpacity(0.1),
-                                            const Color(0xFF8B5CF6).withOpacity(0.1),
-                                          ],
-                                        )
-                                      : null,
-                                  color: isTopThree ? null : Colors.white.withOpacity(0.05),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: isTopThree
-                                        ? const Color(0xFF27E8A7).withOpacity(0.3)
-                                        : Colors.white.withOpacity(0.1),
-                                    width: isTopThree ? 2 : 1,
-                                  ),
-                                  boxShadow: isTopThree
-                                      ? [
-                                          BoxShadow(
-                                            color: const Color(0xFF27E8A7).withOpacity(0.2),
-                                            blurRadius: 12,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ]
-                                      : null,
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: isTopThree
-                                              ? [const Color(0xFF27E8A7), const Color(0xFF8B5CF6)]
-                                              : [Colors.grey.shade700, Colors.grey.shade600],
-                                        ),
-                                        shape: BoxShape.circle,
-                                        boxShadow: isTopThree
-                                            ? [
-                                                BoxShadow(
-                                                  color: const Color(0xFF27E8A7).withOpacity(0.4),
-                                                  blurRadius: 8,
-                                                ),
-                                              ]
-                                            : null,
-                                      ),
-                                      child: Center(
-                                        child: isTopThree
-                                            ? Icon(
-                                                index == 0
-                                                    ? Icons.emoji_events
-                                                    : index == 1
-                                                        ? Icons.military_tech
-                                                        : Icons.workspace_premium,
-                                                color: Colors.white,
-                                                size: 20,
-                                              )
-                                            : Text(
-                                                '${index + 1}',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 14),
-                                    Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Text(
-                                        category.emoji,
-                                        style: const TextStyle(fontSize: 20),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item['name'],
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            category.label,
-                                            style: TextStyle(
-                                              color: Colors.grey[400],
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 14,
-                                        vertical: 8,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [Color(0xFF27E8A7), Color(0xFF8B5CF6)],
-                                        ),
-                                        borderRadius: BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: const Color(0xFF27E8A7).withOpacity(0.3),
-                                            blurRadius: 8,
-                                          ),
-                                        ],
-                                      ),
-                                      child: Text(
-                                        '${item['bought_count']}x',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
-                    ] else ...[
-                      // Empty State
-                      Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(40),
-                          margin: const EdgeInsets.only(top: 40),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF111936).withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
-                              color: const Color(0xFF8B5CF6).withOpacity(0.3),
-                              width: 2,
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      const Color(0xFF8B5CF6).withOpacity(0.3),
-                                      const Color(0xFF27E8A7).withOpacity(0.3),
-                                    ],
-                                  ),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.analytics_outlined,
-                                  size: 64,
-                                  color: Color(0xFF8B5CF6),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              const Text(
-                                'No Analytics Data Yet',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                'Start marking items as bought\nto see your spending insights!',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 14,
-                                  height: 1.5,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF8B5CF6), Color(0xFF27E8A7)],
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.lightbulb_outline, color: Colors.white, size: 18),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Tip: Run the migration script first!',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                    
-                    const SizedBox(height: 80),
-                  ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0B0F2A), Color(0xFF1a1f3a)],
+          ),
+        ),
+        child: Center(
+          child: Container(
+            margin: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: const Color(0xFF111936).withOpacity(0.85),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF27E8A7).withOpacity(0.1),
+                  blurRadius: 24,
+                  spreadRadius: 0,
                 ),
-              ),
+              ],
             ),
-    );
-  }
-
-  Widget _buildMiniStatCard(String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withOpacity(0.2),
-            color.withOpacity(0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF27E8A7), Color(0xFF8B5CF6)],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.bar_chart_rounded,
+                    color: Colors.white,
+                    size: 48,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Analytics Dashboard',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Coming Soon',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[400],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Advanced analytics with spending insights,\ncategory breakdowns, and purchase trends',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 2),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[400],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGlassCard({required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF111936).withOpacity(0.6),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
       ),
-      child: child,
     );
-  }
-
-  Color _getCategoryColor(String category) {
-    final colors = {
-      'produce': const Color(0xFF4CAF50),
-      'dairy': const Color(0xFFFDD835),
-      'meat': const Color(0xFFE91E63),
-      'bakery': const Color(0xFFFF9800),
-      'frozen': const Color(0xFF00BCD4),
-      'beverages': const Color(0xFF9C27B0),
-      'snacks': const Color(0xFFFF5722),
-      'household': const Color(0xFF607D8B),
-      'personal_care': const Color(0xFF3F51B5),
-      'other': const Color(0xFF9E9E9E),
-    };
-    return colors[category] ?? const Color(0xFF9E9E9E);
   }
 }

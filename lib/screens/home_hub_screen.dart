@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'shopping_lists_screen.dart';
+import 'dashboard_screen.dart';
 import 'analytics_screen.dart';
 import 'profile_screen.dart';
 
@@ -15,7 +15,7 @@ class _HomeHubScreenState extends State<HomeHubScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    const ShoppingListsScreen(),
+    const DashboardScreen(),
     const AnalyticsScreen(),
     const ProfileScreen(),
   ];
