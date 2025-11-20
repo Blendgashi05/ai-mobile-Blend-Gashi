@@ -37,6 +37,11 @@ class CustomTextField extends StatelessWidget {
       enabled: enabled,
       maxLines: obscureText ? 1 : maxLines,
       textCapitalization: textCapitalization,
+      style: const TextStyle(
+        color: Colors.black,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+      ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
@@ -61,7 +66,7 @@ class CustomTextField extends StatelessWidget {
           borderSide: const BorderSide(color: Colors.red, width: 2),
         ),
         filled: true,
-        fillColor: enabled ? Colors.grey[50] : Colors.grey[100],
+        fillColor: enabled ? Colors.white : Colors.grey[100],
       ),
     );
   }
