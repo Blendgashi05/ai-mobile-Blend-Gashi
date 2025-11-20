@@ -116,6 +116,16 @@ flutter build web --release --dart-define=SUPABASE_URL=$SUPABASE_URL --dart-defi
   - Emerald (#27E8A7) and Purple (#8B5CF6) accents
   - Custom typography scale
   - Enhanced input fields, buttons, cards
+- Fixed input field visibility:
+  - Changed all text fields to black text on white background
+  - Applied fix to login, signup, and all custom text fields
+  - Maximum readability for user input
+- Added dynamic footer component:
+  - Glassmorphic design matching app theme
+  - Quick links (About, Privacy, Help) in emerald
+  - Copyright with shopping bag icon
+  - "Made with Flutter" gradient tagline
+  - Added to login, signup, and shopping lists screens
 - Built comprehensive roadmap for future phases
 
 ## User Preferences
