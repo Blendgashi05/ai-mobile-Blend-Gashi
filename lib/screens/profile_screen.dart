@@ -239,13 +239,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          _profile?.displayName?.isNotEmpty == true 
-                              ? _profile!.displayName! 
-                              : 'No name set',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                        ShaderMask(
+                          shaderCallback: (bounds) => const LinearGradient(
+                            colors: [Color(0xFF27E8A7), Color(0xFF8B5CF6)],
+                          ).createShader(bounds),
+                          child: Text(
+                            _profile?.displayName?.isNotEmpty == true 
+                                ? _profile!.displayName! 
+                                : 'No name set',
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 4),

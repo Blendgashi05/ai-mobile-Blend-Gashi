@@ -308,6 +308,13 @@ class SupabaseService {
       final uniqueFileName = 'profile_$timestamp$extension';
       final path = '${user.id}/$uniqueFileName';
 
+      // Try to create bucket if it doesn't exist (will fail silently if already exists)
+      try {
+        await _client.storage.createBucket('profile-photos', const BucketOptions(public: true));
+      } catch (e) {
+        // Bucket might already exist, continue
+      }
+
       // Upload binary data (works on all platforms)
       await _client.storage.from('profile-photos').uploadBinary(
             path,
@@ -319,7 +326,11 @@ class SupabaseService {
 
       return publicUrl;
     } catch (e) {
-      throw Exception('Failed to upload profile photo: ${e.toString()}');
+      // Provide helpful error message
+      if (e.toString().contains('bucket') || e.toString().contains('not found')) {
+        throw Exception('Storage not configured. Please create "profile-photos" bucket in Supabase dashboard.');
+      }
+      throw Exception('Failed to upload photo: ${e.toString()}');
     }
   }
 

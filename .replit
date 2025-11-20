@@ -38,10 +38,6 @@ externalPort = 80
 localPort = 33215
 externalPort = 3000
 
-[[ports]]
-localPort = 35987
-externalPort = 3001
-
 [deployment]
 deploymentTarget = "static"
 publicDir = "build/web"

@@ -318,8 +318,26 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         ? (_completedItems / _totalItems * 100).toStringAsFixed(0) 
         : '0';
     
+    final bool showBackButton = ModalRoute.of(context)?.canPop ?? false;
+    
     return Scaffold(
       backgroundColor: const Color(0xFF0B0F2A),
+      appBar: showBackButton ? AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF27E8A7), size: 28),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          'All Shopping Lists',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ) : null,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF27E8A7)))
           : _errorMessage != null
