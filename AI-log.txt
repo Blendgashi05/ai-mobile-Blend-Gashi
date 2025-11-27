@@ -13,4 +13,12 @@ Error handling, loading states, and input validation.
 
 Include clear documentation in README: setup steps, environment variables, running instructions.
 
+the dashboard and the analytics page are the same please change that, think of the best possible solution and give me a final projeck something good and working and sleek design, and please fix the profile picture so i can insert cuz its still showing an error, and the text that tells u what to insert in the text fields change the design because they are not visible and they are in a bad position
+
+Error uploading photo: LatelnitializionError: Field '_instance' has not been initialized. This is what pops up when i try to upload a profile picture please fix this error, the toolbar should be there even when i try to make a new list because i cant go back after i create the list and please fix the font on display name cuz it barely recognized make the font bigger or glowing or any other color that looks good for eye
+
+on the main dashboard try and make a better design and funcionality, on the staticts page add some charts and make it more better for the eyes to read info on, on the profile page make the profile picture changable
+
 Code should be production-ready, clean, and commented.
+
+
