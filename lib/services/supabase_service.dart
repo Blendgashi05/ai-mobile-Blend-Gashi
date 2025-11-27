@@ -308,13 +308,6 @@ class SupabaseService {
       final uniqueFileName = 'profile_$timestamp$extension';
       final path = '${user.id}/$uniqueFileName';
 
-      // Try to create bucket if it doesn't exist (will fail silently if already exists)
-      try {
-        await _client.storage.createBucket('profile-photos', const BucketOptions(public: true));
-      } catch (e) {
-        // Bucket might already exist, continue
-      }
-
       // Upload binary data (works on all platforms)
       await _client.storage.from('profile-photos').uploadBinary(
             path,
@@ -326,11 +319,32 @@ class SupabaseService {
 
       return publicUrl;
     } catch (e) {
-      // Provide helpful error message
-      if (e.toString().contains('bucket') || e.toString().contains('not found')) {
-        throw Exception('Storage not configured. Please create "profile-photos" bucket in Supabase dashboard.');
+      final errorStr = e.toString().toLowerCase();
+      
+      // Check for common storage errors and provide helpful messages
+      if (errorStr.contains('bucket') || errorStr.contains('not found') || errorStr.contains('does not exist')) {
+        throw Exception(
+          'Storage bucket not found. Please create a bucket named "profile-photos" in your Supabase Dashboard:\n'
+          '1. Go to Supabase Dashboard > Storage\n'
+          '2. Click "New bucket"\n'
+          '3. Name it "profile-photos"\n'
+          '4. Make it PUBLIC\n'
+          '5. Save and try again'
+        );
       }
-      throw Exception('Failed to upload photo: ${e.toString()}');
+      if (errorStr.contains('policy') || errorStr.contains('permission') || errorStr.contains('unauthorized')) {
+        throw Exception(
+          'Storage permission denied. Please add a storage policy:\n'
+          '1. Go to Supabase Dashboard > Storage > profile-photos\n'
+          '2. Click "Policies" tab\n'
+          '3. Add policy for authenticated users to upload'
+        );
+      }
+      if (errorStr.contains('size') || errorStr.contains('too large')) {
+        throw Exception('Image file is too large. Please use a smaller image.');
+      }
+      
+      throw Exception('Upload failed: ${e.toString()}');
     }
   }
 
