@@ -1,23 +1,38 @@
 # Shopping List App - Project Documentation
 
 ## Overview
-A modern, premium Flutter web application for managing shopping lists with Supabase backend integration. Features a sleek glassmorphism design with dark theme, gradient accents, and smooth animations. Built on November 20, 2025.
+A modern, premium shopping list application with Supabase backend integration. Features a sleek glassmorphism design with dark theme, gradient accents, and smooth animations. Built on November 20, 2025.
+
+**Now available in two versions:**
+- **Flutter** (Original) - Web application running on Replit
+- **React Native/Expo** (New) - Mobile app for Expo Snack testing
 
 ## Project Status
-- **Status**: Phase 1 redesign in progress
-- **Type**: Flutter web application
+- **Status**: Complete with dual framework support
+- **Type**: Flutter web + React Native mobile
 - **Backend**: Supabase (Authentication + PostgreSQL)
 - **Deployment**: Static build served on port 5000
 - **Design Phase**: Modern glassmorphism UI implemented
 
 ## Tech Stack
+
+### Flutter Version (Web)
 - **Frontend**: Flutter 3.32.0 / Dart 3.8
 - **Backend**: Supabase (Auth + Database)
 - **State Management**: Provider pattern
 - **UI**: Material 3 with custom dark theme
+- **Dependencies**: supabase_flutter, provider, http, intl, google_fonts, file_picker
+
+### React Native Version (Mobile/Expo Snack)
+- **Frontend**: React Native + Expo SDK 51
+- **Backend**: Supabase (Auth + Database)
+- **Navigation**: React Navigation v6
+- **UI**: expo-blur, expo-linear-gradient
+- **Dependencies**: @supabase/supabase-js, expo-image-picker, @expo-google-fonts
+
+### Shared Design
 - **Design**: Glassmorphism with Midnight Emerald palette
 - **Fonts**: Google Fonts (Poppins + Inter)
-- **Dependencies**: supabase_flutter, provider, http, intl, google_fonts, file_picker, fl_chart
 
 ## Project Architecture
 
