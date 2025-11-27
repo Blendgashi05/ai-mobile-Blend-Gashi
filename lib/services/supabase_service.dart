@@ -8,7 +8,6 @@ import '../models/purchase_history.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:convert';
-import 'package:image/image.dart' as img;
 
 /// Service for all Supabase database operations
 class SupabaseService {
@@ -301,27 +300,19 @@ class SupabaseService {
       final user = getCurrentUser();
       if (user == null) throw Exception('User not authenticated');
 
-      // Decode the image
-      img.Image? image = img.decodeImage(fileBytes);
-      if (image == null) {
-        throw Exception('Could not decode image');
+      // Determine mime type from file extension
+      String mimeType = 'image/jpeg';
+      if (fileName.toLowerCase().endsWith('.png')) {
+        mimeType = 'image/png';
+      } else if (fileName.toLowerCase().endsWith('.gif')) {
+        mimeType = 'image/gif';
+      } else if (fileName.toLowerCase().endsWith('.webp')) {
+        mimeType = 'image/webp';
       }
 
-      // Resize to max 300x300 for profile photos (keeps file size small)
-      if (image.width > 300 || image.height > 300) {
-        image = img.copyResize(
-          image,
-          width: image.width > image.height ? 300 : null,
-          height: image.height >= image.width ? 300 : null,
-        );
-      }
-
-      // Encode as JPEG with 75% quality for good compression
-      final compressedBytes = img.encodeJpg(image, quality: 75);
-
-      // Convert to Base64 data URL
-      final base64String = base64Encode(compressedBytes);
-      final dataUrl = 'data:image/jpeg;base64,$base64String';
+      // Convert to Base64 data URL directly (no resizing on web for compatibility)
+      final base64String = base64Encode(fileBytes);
+      final dataUrl = 'data:$mimeType;base64,$base64String';
 
       return dataUrl;
     } catch (e) {
