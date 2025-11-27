@@ -165,11 +165,12 @@ flutter build web --release --dart-define=SUPABASE_URL=$SUPABASE_URL --dart-defi
   - Modern card layout with proper spacing
 - Profile screen with photo upload:
   - Added file_picker package (^8.3.7) for web support
-  - Implemented profile photo upload to Supabase storage
-  - Web-compatible upload using bytes and uploadBinary
+  - Profile photos stored as Base64 in database (no Supabase storage needed)
+  - Images auto-compressed to 300x300 max, 75% JPEG quality
   - Circular avatar with gradient border
   - Upload button with camera icon
   - Profile info display (email, member since date)
+  - Works immediately without any storage bucket configuration
 - Analytics screen with real-time data:
   - Summary stats: Total Items, Completed, Pending
   - Most Common Items section showing top 10 frequently added items

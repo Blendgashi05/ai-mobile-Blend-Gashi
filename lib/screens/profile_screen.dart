@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:file_picker/file_picker.dart';
+import 'dart:convert';
 import '../services/supabase_service.dart';
 import '../models/user_profile.dart';
 import '../widgets/custom_button.dart';
@@ -193,10 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               child: _profile?.photoUrl != null
                                   ? ClipOval(
-                                      child: Image.network(
-                                        _profile!.photoUrl!,
-                                        fit: BoxFit.cover,
-                                      ),
+                                      child: _buildProfileImage(_profile!.photoUrl!),
                                     )
                                   : const Icon(
                                       Icons.person,
@@ -409,5 +407,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildProfileImage(String photoUrl) {
+    if (photoUrl.startsWith('data:image')) {
+      final base64Data = photoUrl.split(',').last;
+      return Image.memory(
+        base64Decode(base64Data),
+        width: 120,
+        height: 120,
+        fit: BoxFit.cover,
+      );
+    } else {
+      return Image.network(
+        photoUrl,
+        width: 120,
+        height: 120,
+        fit: BoxFit.cover,
+      );
+    }
   }
 }

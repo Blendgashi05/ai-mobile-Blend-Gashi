@@ -192,26 +192,18 @@ export const supabaseService = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
-    const fileName = `${user.id}/profile_${Date.now()}.jpg`;
-    
     const response = await fetch(uri);
     const blob = await response.blob();
-    const arrayBuffer = await new Response(blob).arrayBuffer();
-
-    const { error: uploadError } = await supabase.storage
-      .from('profile-photos')
-      .upload(fileName, arrayBuffer, {
-        contentType: 'image/jpeg',
-        upsert: true,
-      });
-
-    if (uploadError) throw uploadError;
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('profile-photos')
-      .getPublicUrl(fileName);
-
-    return publicUrl;
+    
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        resolve(base64data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   },
 
   onAuthStateChange(callback) {

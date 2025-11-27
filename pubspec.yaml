@@ -61,6 +61,7 @@ dependencies:
   
   # File picker
   file_picker: ^8.1.6
+  image: ^4.5.4
 
 dev_dependencies:
   flutter_test:

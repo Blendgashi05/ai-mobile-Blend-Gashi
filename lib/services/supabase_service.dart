@@ -7,6 +7,8 @@ import '../models/user_preferences.dart';
 import '../models/purchase_history.dart';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:convert';
+import 'package:image/image.dart' as img;
 
 /// Service for all Supabase database operations
 class SupabaseService {
@@ -293,58 +295,37 @@ class SupabaseService {
     }
   }
 
-  /// Upload profile photo to storage (supports web and mobile with bytes)
+  /// Convert profile photo to Base64 and store in database (no storage bucket needed)
   Future<String> uploadProfilePhoto(Uint8List fileBytes, String fileName) async {
     try {
       final user = getCurrentUser();
       if (user == null) throw Exception('User not authenticated');
 
-      // Ensure we have a file extension
-      final extension = fileName.contains('.') 
-          ? fileName.substring(fileName.lastIndexOf('.'))
-          : '.jpg';
-      
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final uniqueFileName = 'profile_$timestamp$extension';
-      final path = '${user.id}/$uniqueFileName';
+      // Decode the image
+      img.Image? image = img.decodeImage(fileBytes);
+      if (image == null) {
+        throw Exception('Could not decode image');
+      }
 
-      // Upload binary data (works on all platforms)
-      await _client.storage.from('profile-photos').uploadBinary(
-            path,
-            fileBytes,
-            fileOptions: const FileOptions(upsert: true),
-          );
+      // Resize to max 300x300 for profile photos (keeps file size small)
+      if (image.width > 300 || image.height > 300) {
+        image = img.copyResize(
+          image,
+          width: image.width > image.height ? 300 : null,
+          height: image.height >= image.width ? 300 : null,
+        );
+      }
 
-      final publicUrl = _client.storage.from('profile-photos').getPublicUrl(path);
+      // Encode as JPEG with 75% quality for good compression
+      final compressedBytes = img.encodeJpg(image, quality: 75);
 
-      return publicUrl;
+      // Convert to Base64 data URL
+      final base64String = base64Encode(compressedBytes);
+      final dataUrl = 'data:image/jpeg;base64,$base64String';
+
+      return dataUrl;
     } catch (e) {
-      final errorStr = e.toString().toLowerCase();
-      
-      // Check for common storage errors and provide helpful messages
-      if (errorStr.contains('bucket') || errorStr.contains('not found') || errorStr.contains('does not exist')) {
-        throw Exception(
-          'Storage bucket not found. Please create a bucket named "profile-photos" in your Supabase Dashboard:\n'
-          '1. Go to Supabase Dashboard > Storage\n'
-          '2. Click "New bucket"\n'
-          '3. Name it "profile-photos"\n'
-          '4. Make it PUBLIC\n'
-          '5. Save and try again'
-        );
-      }
-      if (errorStr.contains('policy') || errorStr.contains('permission') || errorStr.contains('unauthorized')) {
-        throw Exception(
-          'Storage permission denied. Please add a storage policy:\n'
-          '1. Go to Supabase Dashboard > Storage > profile-photos\n'
-          '2. Click "Policies" tab\n'
-          '3. Add policy for authenticated users to upload'
-        );
-      }
-      if (errorStr.contains('size') || errorStr.contains('too large')) {
-        throw Exception('Image file is too large. Please use a smaller image.');
-      }
-      
-      throw Exception('Upload failed: ${e.toString()}');
+      throw Exception('Failed to process image: ${e.toString()}');
     }
   }
 
